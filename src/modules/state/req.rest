@@ -1,0 +1,12 @@
+POST http://localhost:3000/post/create
+Content-Type: application/json
+
+{
+    "stateId": "61f2c746947543701e7b7a13",
+    "title": "test title for north khorasan",
+    "description": "description for post of north khorasan",
+    "author": "MohammadHadi Pahlavan",
+    "text": "text for post of north khorasan",
+    "seens": 0,
+    "comments": []
+}
