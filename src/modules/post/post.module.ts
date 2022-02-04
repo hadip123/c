@@ -8,7 +8,7 @@ import PostController from "./post.controller";
 import PostService from "./post.service";
 
 @Module({
-    imports: [MongooseModule.forFeature([{name: State.name,schema: StateSchema}]),MongooseModule.forFeature([{name: Comment.name,schema: CommentSchema}]),MongooseModule.forFeature([{name: Post.name,schema: PostSchema}])],
+    imports: [MongooseModule.forFeature([{name: State.name,schema: StateSchema}, {name: Post.name, schema: PostSchema}, {name: Comment.name, schema: CommentSchema}])],
     controllers: [PostController],
     providers: [PostService, StateService]
 })

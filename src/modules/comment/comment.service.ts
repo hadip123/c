@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CommentDocument } from '../schemas/comment.schema';
-import { PostDocument } from '../schemas/post.schema';
+import { Comment, CommentDocument } from '../schemas/comment.schema';
+import { Post, PostDocument } from '../schemas/post.schema';
 import { AddCommentDto } from './comment.dto';
 
 @Injectable()
 export class CommentService {
-    constructor(private readonly commentModel: Model<CommentDocument>,
-        private readonly postModel: Model<PostDocument> ) {}
+    constructor(@InjectModel(Comment.name) private readonly commentModel: Model<CommentDocument>,
+    @InjectModel(Post.name) private readonly postModel: Model<PostDocument> ) {}
 
     async add(addComment: AddCommentDto) {
         const result = await this.commentModel.create(addComment);

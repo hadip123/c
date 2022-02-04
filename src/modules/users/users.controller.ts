@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Request } from "@nestjs/common";
+import { Body, Controller, Get, Post, Request, UseGuards } from "@nestjs/common";
+import { AuthenticatedGuard } from "../auth/authenticated.guard";
 import { RegisterDto } from "./users.dto";
 import { UsersService } from "./users.service";
 
@@ -16,6 +17,7 @@ export class UsersController {
         }
     }
 
+    @UseGuards(AuthenticatedGuard)
     @Get('info/get')
     async getInfo(@Request() req) {
         return {
