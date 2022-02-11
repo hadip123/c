@@ -10,6 +10,9 @@ export class Comment {
 
     @Prop({required: true})
     text: string;
+
+    @Prop({required: true})
+    postId: string;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

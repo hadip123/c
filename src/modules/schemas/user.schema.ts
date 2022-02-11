@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Post } from "./post.schema";
 
 export type UserDocument = User & Document;
 
@@ -10,7 +11,7 @@ export class User {
     @Prop()
     lastName: string;
 
-    @Prop()
+    @Prop({unique: true})
     username: string;
 
     @Prop()

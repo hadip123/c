@@ -14,18 +14,24 @@ export class PostCreateDto {
     description: string;
 
     @IsString()
-    @Length(3, 30)
-    author: string;
-
-    @IsString()
     @Length(10)
     text: string;
 
     @IsNumber()
     seens: number;
 
-    @IsArray()
-    comments: any[];
+    @IsNumber()
+    rate: number;
+}
+
+export type postCreateBody = {
+    stateId: string;
+    title: string;
+    description: string;
+    text: string;
+    seens: number;
+    rate: number;
+    authorId: string;
 }
 
 export class PostUpdateDto {
@@ -59,9 +65,6 @@ export class SeenPostDto {
 }
 
 export class PostDeleteDto {
-    @IsMongoId()
-    stateId: string;
-
     @IsMongoId()
     postId: string;
 }

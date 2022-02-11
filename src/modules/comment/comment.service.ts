@@ -12,12 +12,6 @@ export class CommentService {
 
     async add(addComment: AddCommentDto) {
         const result = await this.commentModel.create(addComment);
-        const post = await this.postModel.findById(addComment.postId)
-
-        if (post) {
-            post.comments.push(result);
-            post.save();
-        }
 
         return result;
     }

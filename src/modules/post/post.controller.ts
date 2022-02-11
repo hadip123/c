@@ -1,16 +1,26 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
+import { AuthenticatedGuard } from "../auth/authenticated.guard";
 import { PostCreateDto, PostDeleteDto, PostUpdateDto } from "./post.dto";
 import PostService from "./post.service";
 
 @Controller('post')
 export default class PostController {
-    constructor(private postService: PostService) {}
+    constructor(private postService: PostService) { }
 
+    @UseGuards(AuthenticatedGuard)
     @Post('create')
-    async create(@Body() body: PostCreateDto) {
+    async create(@Body() body: PostCreateDto, @Request() req) {
         return {
             message: 'Post created',
-            data: await this.postService.create(body)
+            data: await this.postService.create({
+                stateId: body.stateId,
+                title: body.title,
+                description: body.description,
+                seens: body.seens,
+                text: body.text,
+                authorId: req.user["_doc"]["_id"],
+                rate: body.rate
+            }, req)
         }
     }
 
@@ -18,13 +28,15 @@ export default class PostController {
     async seen(@Param('postId') postId: string) {
         return {
             message: 'Seen added',
-            data: await this.postService.seen({postId})
+            data: await this.postService.seen({ postId })
         }
     }
 
+    @UseGuards(AuthenticatedGuard)
     @Post('update')
-    async update(@Body() body: PostUpdateDto) {
-        const result = await this.postService.update(body);
+    async update(@Body() body: PostUpdateDto,
+        @Request() req) {
+        const result = await this.postService.update(body, req.user["_doc"]["_id"]);
 
         return {
             message: 'Post updated',
@@ -32,13 +44,35 @@ export default class PostController {
         }
     }
 
+    @UseGuards(AuthenticatedGuard)
     @Post('delete')
-    async delete(@Body() body: PostDeleteDto) {
-        const result = await this.delete(body);
+    async delete(@Body() body: PostDeleteDto, @Request() req) {
+        const result = await this.postService.delete(body.postId, req.user["_doc"]["_id"]);
 
         return {
             message: 'Post deleted.',
+            data: result
+        }
+    }
 
+    @Get('state/:id')
+    async getPostsByState(
+        @Param('id') stateId: string
+    ) {
+        const result = await this.postService.getByState(stateId);
+
+        return {
+            message: 'There are posts of this state.',
+            data: result
+        }
+    }
+
+    @Get(':id')
+    async get(@Param('id') id: string) {
+        const result = await this.postService.getById(id);
+
+        return {
+            message: 'This is post info',
             data: result
         }
     }

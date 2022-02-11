@@ -13,8 +13,9 @@ async function bootstrap() {
     secret: 'rostamzhoon',
     resave: false,
     saveUninitialized: false,
-    cookie: {maxAge: 36000}
+    // cookie: {maxAge: 36000}
   }))
+  app.enableCors();
 
   app.use(passport.initialize());
   app.use(passport.session());

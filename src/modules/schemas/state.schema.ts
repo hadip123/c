@@ -9,15 +9,6 @@ export type StateDocument = State & Document
 export class State {
     @Prop({required: true})
     name: string;
-
-    @Prop({required: true})
-    numberOfPosts: number;
-
-    @Prop({required: true})
-    averageOfRates: number;
-
-    @Prop({required: true, type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Post'}]})
-    posts: Post[];
 }
 
 export const StateSchema = SchemaFactory.createForClass(State);

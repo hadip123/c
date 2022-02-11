@@ -4,7 +4,6 @@ import { Comment } from "./comment.schema";
 
 export type PostDocument = Post & Document;
 
-
 @Schema()
 export class Post {
     @Prop({required: true})
@@ -17,13 +16,19 @@ export class Post {
     author: string;
 
     @Prop({required: true})
+    rate: number;
+
+    @Prop({required: true})
     text: string;
 
     @Prop({required: true})
     seens: number;
 
-    @Prop({required: true, type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]})
-    comments: Comment[];
+    @Prop({required: true})
+    authorId: string;
+
+    @Prop({required: true})
+    stateId: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

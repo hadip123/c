@@ -22,7 +22,13 @@ export class UsersController {
     async getInfo(@Request() req) {
         return {
             message: 'There is user info.',
-            data: req.user
+            data: {
+                id: req.user["_doc"]["_id"],
+                username: req.user["_doc"]["username"],
+                name: req.user["_doc"]["name"],
+                lastName: req.user["_doc"]["lastName"],
+                posts: req.user["_doc"]["posts"]
+            }
         }
     }
 }

@@ -21,4 +21,12 @@ export default class StateController {
             data: (await this.stateService.find())
         }
     }
+
+    @Get(':id')
+    async getStateName(@Param('id') id: string) {
+        return {
+            message: 'StateName',
+            data: (await this.stateService.getStateName(id)).name
+        }
+    }
 }

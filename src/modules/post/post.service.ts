@@ -1,63 +1,98 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Post, PostDocument } from "../schemas/post.schema";
 import { State, StateDocument } from "../schemas/state.schema";
-import { PostCreateDto, SeenPostDto, PostUpdateDto } from "./post.dto";
+import { UserDocument } from "../schemas/user.schema";
+import { PostCreateDto, SeenPostDto, PostUpdateDto, postCreateBody } from "./post.dto";
 
 @Injectable()
 export default class PostService {
-    constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>, @InjectModel(State.name) private stateModel: Model<StateDocument>) { }
+    constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>, @InjectModel(State.name) private stateModel: Model<StateDocument>, @InjectModel(State.name) private userModel: Model<UserDocument>) { }
 
-    async create(post: PostCreateDto) {
+    async create(post: postCreateBody, req) {
         const state = await this.stateModel.findById(post.stateId);
+        const author = await this.userModel.findOne({id: post.authorId});
+        
+        if (!author) throw new NotFoundException('User Not Found.');
+        if (!state) throw new NotFoundException('State Not Found.');
 
         const postResult = await this.postModel.create({
             title: post.title,
-            author: post.author,
-            comments: post.comments,
+            author: `${author.name} ${author.lastName}`,
             description: post.description,
             seens: post.seens,
-            text: post.text
+            text: post.text,
+            rate: post.rate,
+            stateId: post.stateId,
+            authorId: post.authorId
         })
 
-        state.numberOfPosts = state.numberOfPosts + 1;
+        return postResult;
+    }
 
-        state.posts.push(postResult);
+    async delete(postId: string, authorId:string) {
+        const result = await this.postModel.findOneAndDelete({
+            id: postId,
+            authorId
+        });
 
-        const result = await state.save();
-
+        if (!result) throw new NotFoundException('Post Not found')
+        
         return result;
     }
 
-    async delete(postId: string, stateId: string) { 
-        const state = await this.stateModel.findById(stateId);
-        const result = await this.postModel.findByIdAndDelete(postId);
-        if (!result.errors) {
-            state.numberOfPosts = state.numberOfPosts - 1;
-            state.save();
-        }
-        return result;
-    }
-
-    async update(updatePost: PostUpdateDto) { 
-        const result = await this.postModel.findByIdAndUpdate(updatePost.postId, {
-            $set: {
-                ...updatePost.title? {title: updatePost.title}: {},
-                ...updatePost.author? {author: updatePost.author}: {},
-                ...updatePost.text? {text: updatePost.text}: {},
-                ...updatePost.description? {text: updatePost.description}: {},
-            }
+    async update(updatePost: PostUpdateDto, authorId: string) {
+        const result = await this.postModel.findOne({
+            id: updatePost.postId, authorId}, {
         });
         
+        if (!result) throw new NotFoundException('Post Not found')
+
+        result.updateOne({
+            $set: {
+                ...updatePost.title ? { title: updatePost.title } : {},
+                ...updatePost.author ? { author: updatePost.author } : {},
+                ...updatePost.text ? { text: updatePost.text } : {},
+                ...updatePost.description ? { text: updatePost.description } : {},
+            }
+        })
+
         return result;
     }
 
     async seen(seenPost: SeenPostDto) {
         const result = await this.postModel.findById(seenPost.postId);
-
-        result.seens = result.seens+1;
+        result.seens = result.seens + 1;
 
         return await result.save();
+    }
+
+    async getAll() {
+        const result = await this.postModel.find();
+
+        return result;
+    }
+
+    async getByState(stateId: string) {
+        const result = await this.postModel.find({
+            stateId
+        });
+
+        return result;
+    }
+
+    async getById(id: string) {
+        const result = await this.postModel.findById(id);
+
+        return result;
+    }
+
+    async getByAuthor(authorId: string) {
+        const result = await this.postModel.find({
+            authorId
+        })
+
+        return result;
     }
 }

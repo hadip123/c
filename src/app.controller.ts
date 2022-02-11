@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Req, Request, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthenticatedGuard } from './modules/auth/authenticated.guard';
 import { LocalAuthGuard } from './modules/auth/local-auth.guard';
@@ -9,8 +9,14 @@ export class AppController {
 
   @Get()
   @UseGuards(AuthenticatedGuard)
-  async getHello() {
-    return await this.appService.getHello();
+  async testAuth(@Request() req) {
+    return {
+      message: "there is info",
+      data: {
+        name: req.user['_doc'].name,
+        lastName: req.user['_doc'].lastName
+      }
+    };
   }
 
   @UseGuards(LocalAuthGuard)
