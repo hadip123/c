@@ -15,14 +15,19 @@ export class Post {
     @Prop({required: true})
     author: string;
 
-    @Prop({required: true})
-    rate: number;
+    @Prop()
+    rates: {
+        ip: string;
+        rate: number;
+    }[];
 
     @Prop({required: true})
     text: string;
 
     @Prop({required: true})
-    seens: number;
+    seens: {
+        ip: string;
+    }[];
 
     @Prop({required: true})
     authorId: string;

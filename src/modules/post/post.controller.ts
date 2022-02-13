@@ -16,19 +16,17 @@ export default class PostController {
                 stateId: body.stateId,
                 title: body.title,
                 description: body.description,
-                seens: body.seens,
                 text: body.text,
                 authorId: req.user["_doc"]["_id"],
-                rate: body.rate
             }, req)
         }
     }
 
     @Get('seen/:postId')
-    async seen(@Param('postId') postId: string) {
+    async seen(@Param('postId') postId: string, @Request() req) {
         return {
             message: 'Seen added',
-            data: await this.postService.seen({ postId })
+            data: await this.postService.seen({ postId }, req.ip)
         }
     }
 

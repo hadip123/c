@@ -16,12 +16,6 @@ export class PostCreateDto {
     @IsString()
     @Length(10)
     text: string;
-
-    @IsNumber()
-    seens: number;
-
-    @IsNumber()
-    rate: number;
 }
 
 export type postCreateBody = {
@@ -29,8 +23,6 @@ export type postCreateBody = {
     title: string;
     description: string;
     text: string;
-    seens: number;
-    rate: number;
     authorId: string;
 }
 
@@ -67,4 +59,12 @@ export class SeenPostDto {
 export class PostDeleteDto {
     @IsMongoId()
     postId: string;
+}
+
+export class PostRateDto {
+    @IsMongoId()
+    postId: string;
+
+    @IsNumber()
+    rate: number;
 }

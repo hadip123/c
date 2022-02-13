@@ -19,7 +19,11 @@ export default class StateService {
             });
             if (posts.length !== 0) {
                 posts.map(post => {
-                    aRates += post.rate;
+                    let bRates: number = 0;
+                    post.rates.map((rate) => {
+                        bRates += rate.rate;
+                    })
+                    aRates += (bRates / post.rates.length);
                 });
             }
 
@@ -27,7 +31,7 @@ export default class StateService {
                 id: state.id,
                 name: state.name,
                 numberOfPosts: posts.length,
-                averageOfRates: (posts.length !== 0) ? (aRates / posts.length) : 0,
+                averageOfRates: (aRates) ? (aRates / posts.length) : 0,
             }
         }));
 

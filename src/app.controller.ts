@@ -18,6 +18,10 @@ export class AppController {
       }
     };
   }
+  @Get('ip')
+  getIp(@Request() req) {
+    return req.ip;
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')

@@ -1,29 +1,31 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, HttpException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Post, PostDocument } from "../schemas/post.schema";
 import { State, StateDocument } from "../schemas/state.schema";
-import { UserDocument } from "../schemas/user.schema";
-import { PostCreateDto, SeenPostDto, PostUpdateDto, postCreateBody } from "./post.dto";
+import { UserDocument, User } from "../schemas/user.schema";
+import { PostCreateDto, SeenPostDto, PostUpdateDto, postCreateBody, PostRateDto } from "./post.dto";
 
 @Injectable()
 export default class PostService {
-    constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>, @InjectModel(State.name) private stateModel: Model<StateDocument>, @InjectModel(State.name) private userModel: Model<UserDocument>) { }
+    constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>, @InjectModel(State.name) private stateModel: Model<StateDocument>, @InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
     async create(post: postCreateBody, req) {
         const state = await this.stateModel.findById(post.stateId);
         const author = await this.userModel.findOne({id: post.authorId});
+
+        console.log(author)
         
-        if (!author) throw new NotFoundException('User Not Found.');
-        if (!state) throw new NotFoundException('State Not Found.');
+        if (!author) throw new NotFoundException('کاربر یافت نشد');
+        if (!state) throw new NotFoundException('استان یافت نشد');
 
         const postResult = await this.postModel.create({
             title: post.title,
             author: `${author.name} ${author.lastName}`,
             description: post.description,
-            seens: post.seens,
+            seens: [],
             text: post.text,
-            rate: post.rate,
+            rate: [],
             stateId: post.stateId,
             authorId: post.authorId
         })
@@ -61,10 +63,26 @@ export default class PostService {
         return result;
     }
 
-    async seen(seenPost: SeenPostDto) {
+    async seen(seenPost: SeenPostDto, ip: string) {
         const result = await this.postModel.findById(seenPost.postId);
-        result.seens = result.seens + 1;
+        if (!result) throw new NotFoundException('Post not found');
+        result.seens.push({ip: ip});
 
+        return await result.save();
+    }
+
+    async rate(ratePost: PostRateDto, ip: string) {
+        const result = await this.postModel.findById(ratePost.postId);
+
+        if (!result) throw new NotFoundException('Post not found');
+        const perviousRate = result.rates.find((rate) => rate.ip === ip);
+        if (perviousRate) {
+            perviousRate.rate = ratePost.rate
+        
+            return await result.save();
+        };
+        result.rates.push({ip, rate: ratePost.rate});
+        
         return await result.save();
     }
 
@@ -84,8 +102,20 @@ export default class PostService {
 
     async getById(id: string) {
         const result = await this.postModel.findById(id);
-
-        return result;
+        if (!result) throw new NotFoundException('نوشته یافت نشد');
+        let post = {...result['_doc']};
+        console.log(post);
+        let aRates = 0;
+        post.rates.map(rate => {
+            aRates += rate.rate;
+        }); 
+        let aSeens = 0;
+        post['seen'] = post.seens.length;
+        post['rate'] = (aRates / post.rates.length) ? (aRates / post.rates.length) : 0;
+        delete post['__v'];
+        delete post['rates'];
+        delete post['seens'];
+        return post;
     }
 
     async getByAuthor(authorId: string) {
