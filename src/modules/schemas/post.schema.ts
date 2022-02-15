@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose'
 import { Comment } from "./comment.schema";
 
 export type PostDocument = Post & Document;
-
+    
 @Schema()
 export class Post {
     @Prop({required: true})

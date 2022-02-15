@@ -1,5 +1,6 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { isMongoId } from "class-validator";
 import { stat } from "fs";
 import { Model } from "mongoose";
 import { Post, PostDocument } from "../schemas/post.schema";
@@ -46,7 +47,11 @@ export default class StateService {
         });
     }
     async getStateName(id: string) {
-        return await this.stateModel.findById(id);
+        const validId = isMongoId(id);
+        if (!validId) throw new NotFoundException('State not found');
+        const result = await this.stateModel.find({_id: id});
+        if (!result[0]) throw new NotFoundException('State not found.');
+        return result[0]
     }
 }
 

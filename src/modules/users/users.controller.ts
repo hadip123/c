@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Request, UseGuards } from "@nestjs/common";
 import { AuthenticatedGuard } from "../auth/authenticated.guard";
-import { RegisterDto } from "./users.dto";
+import { RegisterDto, UserUpdateDto } from "./users.dto";
 import { UsersService } from "./users.service";
 
 @Controller('user')
@@ -29,6 +29,17 @@ export class UsersController {
                 lastName: req.user["_doc"]["lastName"],
                 posts: req.user["_doc"]["posts"]
             }
+        }
+    }
+
+    @UseGuards(AuthenticatedGuard)
+    @Post('info/update')
+    async updateInfo(@Request() req, @Body() body: UserUpdateDto) {
+        const result = await this.userService.updateInfo(req.user['_doc']['_id'], body.name, body.lastName);
+
+        return {
+            message: 'User updated.',
+            data: result
         }
     }
 }

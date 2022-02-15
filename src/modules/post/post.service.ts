@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, HttpException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { isMongoId } from "class-validator";
 import { Model } from "mongoose";
 import { Post, PostDocument } from "../schemas/post.schema";
 import { State, StateDocument } from "../schemas/state.schema";
@@ -14,8 +15,6 @@ export default class PostService {
         const state = await this.stateModel.findById(post.stateId);
         const author = await this.userModel.findOne({id: post.authorId});
 
-        console.log(author)
-        
         if (!author) throw new NotFoundException('کاربر یافت نشد');
         if (!state) throw new NotFoundException('استان یافت نشد');
 
@@ -77,13 +76,24 @@ export default class PostService {
         if (!result) throw new NotFoundException('Post not found');
         const perviousRate = result.rates.find((rate) => rate.ip === ip);
         if (perviousRate) {
-            perviousRate.rate = ratePost.rate
+            perviousRate.rate = ratePost.rate;
         
             return await result.save();
         };
         result.rates.push({ip, rate: ratePost.rate});
         
         return await result.save();
+    }
+
+    async getRate(postId: string, userIP: string) {
+        let valid = isMongoId(postId);
+        if (!valid) throw new NotFoundException('Post Not found.');
+        const post = await this.postModel.findById(postId);
+        if (!post) throw new NotFoundException('Post not found')
+        const rate = post.rates.find(({ip}) => ip = userIP);
+        if (!rate) throw new HttpException('Rate not found', 202)
+        
+        return rate.rate;
     }
 
     async getAll() {
@@ -104,7 +114,6 @@ export default class PostService {
         const result = await this.postModel.findById(id);
         if (!result) throw new NotFoundException('نوشته یافت نشد');
         let post = {...result['_doc']};
-        console.log(post);
         let aRates = 0;
         post.rates.map(rate => {
             aRates += rate.rate;
@@ -112,7 +121,7 @@ export default class PostService {
         let aSeens = 0;
         post['seen'] = post.seens.length;
         post['rate'] = (aRates / post.rates.length) ? (aRates / post.rates.length) : 0;
-        delete post['__v'];
+        delete post['__v']
         delete post['rates'];
         delete post['seens'];
         return post;

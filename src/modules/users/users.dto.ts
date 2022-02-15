@@ -31,3 +31,17 @@ export class RegisterDto {
     })
     lastName: string;
 }
+
+export class UserUpdateDto {
+    @IsString()
+    @Length(2, 30, {
+        message: 'نام باید بین ۲ و ۳۰ حرف باشد'
+    })
+    name: string;
+
+    @IsString()
+    @Length(2, 30, {
+        message: 'نام خانوادگی باید بین ۲ و ۳۰ حرف باشد'
+    })
+    lastName: string;
+}

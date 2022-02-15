@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
 import { AuthenticatedGuard } from "../auth/authenticated.guard";
-import { PostCreateDto, PostDeleteDto, PostUpdateDto } from "./post.dto";
+import { PostCreateDto, PostDeleteDto, PostRateDto, PostUpdateDto } from "./post.dto";
 import PostService from "./post.service";
 
 @Controller('post')
@@ -27,6 +27,14 @@ export default class PostController {
         return {
             message: 'Seen added',
             data: await this.postService.seen({ postId }, req.ip)
+        }
+    }
+
+    @Post('rate')
+    async rate(@Body() body: PostRateDto, @Request() req) {
+        return {
+            message: 'Rated',
+            data: await this.postService.rate({postId: body.postId, rate: body.rate}, req.ip)
         }
     }
 
@@ -73,5 +81,12 @@ export default class PostController {
             message: 'This is post info',
             data: result
         }
+    }
+
+    @Get('rate/:postId')
+    async getRate(@Param('postId') postId: string, @Request() req) {
+        const result = await this.postService.getRate(postId, req.ip);
+
+        return result;
     }
 }
