@@ -4,11 +4,12 @@ import { isMongoId } from "class-validator";
 import { stat } from "fs";
 import { Model } from "mongoose";
 import { Post, PostDocument } from "../schemas/post.schema";
+import { Rate, RateDocument } from "../schemas/rate.schema";
 import { State, StateDocument } from "../schemas/state.schema";
 
 @Injectable()
 export default class StateService {
-    constructor(@InjectModel(State.name) private stateModel: Model<StateDocument>, @InjectModel(Post.name) private postModel: Model<PostDocument>) { };
+    constructor(@InjectModel(Rate.name) private readonly rateModel: Model<RateDocument>, @InjectModel(State.name) private stateModel: Model<StateDocument>, @InjectModel(Post.name) private postModel: Model<PostDocument>) { };
 
     async find() {
         const mongo_states = await this.stateModel.find().exec();
@@ -19,20 +20,21 @@ export default class StateService {
                 stateId: state.id
             });
             if (posts.length !== 0) {
-                posts.map(post => {
+                await Promise.all(posts.map(async post => {
                     let bRates: number = 0;
-                    post.rates.map((rate) => {
+                    const rates = await this.rateModel.find({postId: post.id});
+                    rates.map((rate) => {
                         bRates += rate.rate;
                     })
-                    aRates += (bRates / post.rates.length);
-                });
+                    aRates += rates.length !== 0 ?(bRates / rates.length): 0;
+                }));
             }
 
             return {
                 id: state.id,
                 name: state.name,
                 numberOfPosts: posts.length,
-                averageOfRates: (aRates) ? (aRates / posts.length) : 0,
+                averageOfRates: (aRates !== 0) ? (aRates / posts.length) : 0,
             }
         }));
 

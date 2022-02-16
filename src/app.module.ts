@@ -7,9 +7,10 @@ import { StateModule } from './modules/state/state.module';
 import { UsersModule } from './modules/users/users.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { RateModule } from './modules/rate/rate.module';
 
 @Module({
-  imports: [PostModule ,StateModule, MongooseModule.forRoot('mongodb://localhost:27017/kharazmi-app'), UsersModule, CommentModule, AuthModule],
+  imports: [RateModule,PostModule ,StateModule, MongooseModule.forRoot('mongodb://localhost:27017/kharazmi-app'), UsersModule, CommentModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

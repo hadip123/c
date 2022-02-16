@@ -30,14 +30,6 @@ export default class PostController {
         }
     }
 
-    @Post('rate')
-    async rate(@Body() body: PostRateDto, @Request() req) {
-        return {
-            message: 'Rated',
-            data: await this.postService.rate({postId: body.postId, rate: body.rate}, req.ip)
-        }
-    }
-
     @UseGuards(AuthenticatedGuard)
     @Post('update')
     async update(@Body() body: PostUpdateDto,
@@ -81,12 +73,5 @@ export default class PostController {
             message: 'This is post info',
             data: result
         }
-    }
-
-    @Get('rate/:postId')
-    async getRate(@Param('postId') postId: string, @Request() req) {
-        const result = await this.postService.getRate(postId, req.ip);
-
-        return result;
     }
 }
