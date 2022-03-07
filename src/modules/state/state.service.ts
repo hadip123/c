@@ -25,16 +25,17 @@ export default class StateService {
                     const rates = await this.rateModel.find({postId: post.id});
                     rates.map((rate) => {
                         bRates += rate.rate;
-                    })
+                    });
                     aRates += rates.length !== 0 ?(bRates / rates.length): 0;
                 }));
             }
-
+            const rate = ((aRates / posts.length).toString().slice(0, 4) ?? 0);
             return {
                 id: state.id,
                 name: state.name,
                 numberOfPosts: posts.length,
-                averageOfRates: (aRates !== 0) ? (aRates / posts.length) : 0,
+                averageOfRates: rate === NaN? 0 : rate,
+                image: state.image
             }
         }));
 

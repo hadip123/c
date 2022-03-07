@@ -20,14 +20,14 @@ export class UsersController {
     @UseGuards(AuthenticatedGuard)
     @Get('info/get')
     async getInfo(@Request() req) {
+        const result = await this.userService.findById(req.user['_doc']['_id']);
         return {
             message: 'There is user info.',
             data: {
-                id: req.user["_doc"]["_id"],
-                username: req.user["_doc"]["username"],
-                name: req.user["_doc"]["name"],
-                lastName: req.user["_doc"]["lastName"],
-                posts: req.user["_doc"]["posts"]
+                id: result.id,
+                username: result.username,
+                name: result.name,
+                lastName: result.lastName,
             }
         }
     }

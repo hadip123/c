@@ -30,12 +30,17 @@ export class UsersService {
     }
 
     async updateInfo(id: string, name: string, lastName: string) {
-        const result = await this.userModel.findOne({ id });
+        const result = await this.userModel.findOne({ _id: id });
         if (!result) throw new NotFoundException('User not found.');
 
         result.name = name;
         result.lastName = lastName;
 
         return await result.save();
+    }
+    async findById (id: string) {
+        const result = await this.userModel.findOne({_id: id});
+
+        return result;
     }
 }

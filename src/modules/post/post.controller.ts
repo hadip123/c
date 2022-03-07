@@ -10,6 +10,8 @@ export default class PostController {
     @UseGuards(AuthenticatedGuard)
     @Post('create')
     async create(@Body() body: PostCreateDto, @Request() req) {
+        const authorName = req.user['_doc']['name'];
+        const authorLastName = req.user['_doc']['lastName'];
         return {
             message: 'Post created',
             data: await this.postService.create({
@@ -18,6 +20,7 @@ export default class PostController {
                 description: body.description,
                 text: body.text,
                 authorId: req.user["_doc"]["_id"],
+                author: `${authorName} ${authorLastName}`
             }, req)
         }
     }
@@ -64,6 +67,15 @@ export default class PostController {
             data: result
         }
     }
+    @Get('best')
+    async getBestPosts() {
+        const result = await this.postService.getBestPosts();
+
+        return {
+            message: 'There are best posts',
+            data: result
+        }
+    }
 
     @Get(':id')
     async get(@Param('id') id: string) {
@@ -74,4 +86,15 @@ export default class PostController {
             data: result
         }
     }
+
+    @Get()
+    async getAll() {
+        const result = await this.postService.getAll();
+
+        return {
+            message: 'There are all posts',
+            data: result
+        }
+    }
+
 }

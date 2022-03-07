@@ -9,6 +9,9 @@ export type StateDocument = State & Document
 export class State {
     @Prop({required: true})
     name: string;
+
+    @Prop({required: true})
+    image: string;
 }
 
 export const StateSchema = SchemaFactory.createForClass(State);

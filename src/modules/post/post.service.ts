@@ -14,15 +14,12 @@ export default class PostService {
 
     async create(post: postCreateBody, req) {
         const state = await this.stateModel.findById(post.stateId);
-        const author = await this.userModel.findOne({id: post.authorId});
-        console.log(author);
-        
-        if (!author) throw new NotFoundException('کاربر یافت نشد');
+
         if (!state) throw new NotFoundException('استان یافت نشد');
 
         const postResult = await this.postModel.create({
             title: post.title,
-            author: `${req.user['_doc'].name} ${req.user['_doc'].lastName}`,
+            author: post.author,
             description: post.description,
             seens: [],
             text: post.text,
@@ -34,22 +31,23 @@ export default class PostService {
         return postResult;
     }
 
-    async delete(postId: string, authorId:string) {
+    async delete(postId: string, authorId: string) {
         const result = await this.postModel.findOneAndDelete({
             id: postId,
             authorId
         });
 
         if (!result) throw new NotFoundException('Post Not found')
-        
+
         return result;
     }
 
     async update(updatePost: PostUpdateDto, authorId: string) {
         const result = await this.postModel.findOne({
-            id: updatePost.postId, authorId}, {
+            id: updatePost.postId, authorId
+        }, {
         });
-        
+
         if (!result) throw new NotFoundException('Post Not found')
 
         result.updateOne({
@@ -67,7 +65,7 @@ export default class PostService {
     async seen(seenPost: SeenPostDto, ip: string) {
         const result = await this.postModel.findById(seenPost.postId);
         if (!result) throw new NotFoundException('Post not found');
-        result.seens.push({ip: ip});
+        result.seens.push({ ip: ip });
 
         return await result.save();
     }
@@ -75,7 +73,20 @@ export default class PostService {
     async getAll() {
         const result = await this.postModel.find();
 
-        return result;
+        return await Promise.all(result.map(async (post) => {
+            const state = await this.stateModel.findOne({_id: post.stateId});
+            const rates = await this.rateModel.find({ postId: post.id });
+            let aRates = 0;
+            rates.map(rate => {
+                aRates += rate.rate;
+            });
+            const rate = aRates / rates.length;
+            return {
+                ...post['_doc'],
+                rate: `${rate}`.slice(0,4) ?? 0,
+                stateName: state.name
+            }
+        }));
     }
 
     async getByState(stateId: string) {
@@ -83,18 +94,31 @@ export default class PostService {
             stateId
         });
 
-        return result;
+        return await Promise.all(result.map(async (post) => {
+            const rates = await this.rateModel.find({ postId: post.id });
+            const state = await this.stateModel.findOne({_id: post.stateId});
+            let aRates = 0;
+            rates.map(rate => {
+                aRates += rate.rate;
+            });
+            const rate = aRates / rates.length;
+            return {
+                ...post['_doc'],
+                rate: `${rate}`.slice(0,4) ?? 0,
+                stateName: state.name
+            }
+        }));
     }
 
     async getById(id: string) {
         const result = await this.postModel.findById(id);
         if (!result) throw new NotFoundException('نوشته یافت نشد');
-        let post = {...result['_doc']};
+        let post = { ...result['_doc'] };
         let aRates = 0;
-        const rates = await this.rateModel.find({postId: id});
+        const rates = await this.rateModel.find({ postId: id });
         rates.map(rate => {
             aRates += rate.rate;
-        }); 
+        });
         let aSeens = 0;
         post['seen'] = post.seens.length;
         post['rate'] = (aRates / rates.length) ? (aRates / rates.length) : 0;
@@ -110,5 +134,9 @@ export default class PostService {
         })
 
         return result;
+    }
+
+    async getBestPosts() {
+        return (await this.getAll()).sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate))
     }
 }

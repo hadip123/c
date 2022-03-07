@@ -24,6 +24,7 @@ export type postCreateBody = {
     description: string;
     text: string;
     authorId: string;
+    author: string
 }
 
 export class PostUpdateDto {
