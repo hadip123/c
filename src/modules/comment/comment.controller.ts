@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from '../auth/authenticated.guard';
-import { AddCommentDto } from './comment.dto';
+import { AddCommentDto, DeleteCommentDto, filterType } from './comment.dto';
 import { CommentService } from './comment.service';
 
 @Controller('comment')
@@ -10,7 +10,7 @@ export class CommentController {
     @UseGuards(AuthenticatedGuard)
     @Post('create')
     async create(@Body() body :AddCommentDto, @Request() req) {
-        const author = req.user["_doc"]["name"] + ' ' + req.user["_doc"]["lastName"];
+        const author = req.user['_doc']['id'];
         const result = await this.commentService.add(body, author);
 
         return {
@@ -27,5 +27,26 @@ export class CommentController {
             message: 'Comments',
             data: result
         };
+    }
+
+    @Get(':filterType')
+    async getAll(@Param('filterType') filter: filterType) {
+        const result = await this.commentService.all(filter);
+
+        return {
+            message: `There are all ${filter} comments`,
+            data: result
+        };
+    }
+
+    @UseGuards(AuthenticatedGuard)
+    @Post('delete')
+    async delete(@Body() body: DeleteCommentDto, @Request() req) {
+        const result = await this.commentService.delete(body.id, req.user['_doc']['admin'])
+
+        return {
+            message: 'Comment Deleted',
+            data: result
+        }
     }
 }

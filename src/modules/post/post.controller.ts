@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
 import { AuthenticatedGuard } from "../auth/authenticated.guard";
-import { PostCreateDto, PostDeleteDto, PostRateDto, PostUpdateDto } from "./post.dto";
+import { PostCreateDto, PostDeleteDto, PostCheckDto, PostUpdateDto } from "./post.dto";
 import PostService from "./post.service";
 
 @Controller('post')
@@ -48,7 +48,7 @@ export default class PostController {
     @UseGuards(AuthenticatedGuard)
     @Post('delete')
     async delete(@Body() body: PostDeleteDto, @Request() req) {
-        const result = await this.postService.delete(body.postId, req.user["_doc"]["_id"]);
+        const result = await this.postService.delete(body.postId, req.user["_doc"]["_id"], req.user["_doc"]['admin']);
 
         return {
             message: 'Post deleted.',
@@ -97,4 +97,14 @@ export default class PostController {
         }
     }
 
+    @UseGuards(AuthenticatedGuard)
+    @Post('check')
+    async check(@Body() body: PostCheckDto, @Request() req) {
+        const result = await this.postService.checkPost(body.postId, req.user["_doc"]['admin']);
+
+        return {
+            message: 'PostChecked',
+            data: result
+        }
+    }
 }

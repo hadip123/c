@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, HttpException } from "@nestjs/common";
+import { Injectable, NotFoundException, HttpException, ForbiddenException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { isMongoId } from "class-validator";
 import { Model } from "mongoose";
@@ -6,7 +6,7 @@ import { Post, PostDocument } from "../schemas/post.schema";
 import { Rate, RateDocument } from "../schemas/rate.schema";
 import { State, StateDocument } from "../schemas/state.schema";
 import { UserDocument, User } from "../schemas/user.schema";
-import { PostCreateDto, SeenPostDto, PostUpdateDto, postCreateBody, PostRateDto } from "./post.dto";
+import { PostCreateDto, SeenPostDto, PostUpdateDto, postCreateBody, PostRateDto, SORT_MODE, DATE_CREATED } from "./post.dto";
 
 @Injectable()
 export default class PostService {
@@ -25,21 +25,24 @@ export default class PostService {
             text: post.text,
             rate: [],
             stateId: post.stateId,
-            authorId: post.authorId
+            authorId: post.authorId,
+            createdDate: new Date(),
+            checked: false
         })
 
         return postResult;
     }
 
-    async delete(postId: string, authorId: string) {
-        const result = await this.postModel.findOneAndDelete({
-            id: postId,
-            authorId
+    async delete(postId: string, authorId: string, admin: boolean) {
+        if (!admin) throw new HttpException('You dont have permissions', 205);
+        const result = await this.postModel.findOne({
+            _id: postId,
         });
 
         if (!result) throw new NotFoundException('Post Not found')
 
-        return result;
+        return await result.delete();
+
     }
 
     async update(updatePost: PostUpdateDto, authorId: string) {
@@ -73,8 +76,8 @@ export default class PostService {
     async getAll() {
         const result = await this.postModel.find();
 
-        return await Promise.all(result.map(async (post) => {
-            const state = await this.stateModel.findOne({_id: post.stateId});
+        return (await Promise.all(result.map(async (post) => {
+            const state = await this.stateModel.findOne({ _id: post.stateId });
             const rates = await this.rateModel.find({ postId: post.id });
             let aRates = 0;
             rates.map(rate => {
@@ -83,10 +86,10 @@ export default class PostService {
             const rate = aRates / rates.length;
             return {
                 ...post['_doc'],
-                rate: `${rate}`.slice(0,4) ?? 0,
+                rate: (`${rate}`.slice(0, 4)) === 'NaN' ? 0 : (`${rate}`.slice(0, 4)),
                 stateName: state.name
             }
-        }));
+        }))).sort((a: any, b: any) => b.createdDate - a.createdDate);
     }
 
     async getByState(stateId: string) {
@@ -96,7 +99,7 @@ export default class PostService {
 
         return await Promise.all(result.map(async (post) => {
             const rates = await this.rateModel.find({ postId: post.id });
-            const state = await this.stateModel.findOne({_id: post.stateId});
+            const state = await this.stateModel.findOne({ _id: post.stateId });
             let aRates = 0;
             rates.map(rate => {
                 aRates += rate.rate;
@@ -104,7 +107,7 @@ export default class PostService {
             const rate = aRates / rates.length;
             return {
                 ...post['_doc'],
-                rate: `${rate}`.slice(0,4) ?? 0,
+                rate: (`${rate}`.slice(0, 4)) === 'NaN' ? 0 : (`${rate}`.slice(0, 4)),
                 stateName: state.name
             }
         }));
@@ -138,5 +141,34 @@ export default class PostService {
 
     async getBestPosts() {
         return (await this.getAll()).sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate))
+    }
+
+    async getTodayPosts(sortMode: SORT_MODE, dateCreated: DATE_CREATED) {
+
+        // date created mode
+        if (dateCreated === 'day') {
+
+        } else if (dateCreated === 'week') {
+
+        } else if (dateCreated === 'month') {
+
+        } else if (dateCreated === 'year') {
+
+        }
+
+
+    }
+
+    async checkPost(postId: string, admin: boolean) {
+        if (!admin) throw new ForbiddenException('only admin can delete post');
+        const result = await this.postModel.findOne({
+            _id: postId,
+        });
+
+        if (!result) throw new NotFoundException('Post Not found')
+
+        result.checked = true;
+
+        return await result.save();
     }
 }

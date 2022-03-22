@@ -8,3 +8,10 @@ export class AddCommentDto {
     @IsMongoId()
     postId: string;
 }
+
+export type filterType = 'newest' | 'oldest';
+
+export class DeleteCommentDto {
+    @IsMongoId()
+    id: string;
+}

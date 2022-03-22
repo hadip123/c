@@ -8,9 +8,10 @@ import { UsersModule } from './modules/users/users.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { RateModule } from './modules/rate/rate.module';
+import { CommunityModule } from './modules/community/community.module';
 
 @Module({
-  imports: [RateModule,PostModule ,StateModule, MongooseModule.forRoot('mongodb://localhost:27017/kharazmi-app'), UsersModule, CommentModule, AuthModule],
+  imports: [RateModule,PostModule ,StateModule, MongooseModule.forRoot('mongodb://localhost:27017/kharazmi-app'), UsersModule, CommentModule, AuthModule, CommunityModule],
   controllers: [AppController],
   providers: [AppService],
 })

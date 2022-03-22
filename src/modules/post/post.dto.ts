@@ -27,6 +27,9 @@ export type postCreateBody = {
     author: string
 }
 
+export type SORT_MODE = 'latest' | 'views' | 'rating';
+export type DATE_CREATED = 'week' | 'day' | 'month' | 'year';
+
 export class PostUpdateDto {
     @IsMongoId()
     postId: string;
@@ -68,4 +71,9 @@ export class PostRateDto {
 
     @IsNumber()
     rate: number;
+}
+
+export class PostCheckDto {
+    @IsMongoId()
+    postId: string;
 }

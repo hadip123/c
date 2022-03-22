@@ -15,12 +15,6 @@ export class Post {
     @Prop({required: true})
     author: string;
 
-    @Prop()
-    rates: {
-        ip: string;
-        rate: number;
-    }[];
-
     @Prop({required: true})
     text: string;
 
@@ -34,6 +28,12 @@ export class Post {
 
     @Prop({required: true})
     stateId: string;
+
+    @Prop({required: true})
+    createdDate: Date;
+
+    @Prop({ required: true })
+    checked: boolean;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

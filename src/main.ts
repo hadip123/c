@@ -15,7 +15,22 @@ async function bootstrap() {
     saveUninitialized: false,
     // cookie: {maxAge: 36000}
   }))
-  app.enableCors();
+  const whitelist = [
+    'http://localhost:8080', // IP: Pahlavan
+  ];
+  app.enableCors({
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1 || !origin) {
+
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+
+      }
+    },
+
+    credentials: true,
+  });
 
   app.use(passport.initialize());
   app.use(passport.session());

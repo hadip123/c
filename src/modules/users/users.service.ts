@@ -16,7 +16,7 @@ export class UsersService {
             name: registerDto.name,
             lastName: registerDto.lastName,
             password: await bcrypt.hash(registerDto.password, 10),
-            posts: []
+            admin: false
         }
         const result = await this.userModel.create(user);
 
