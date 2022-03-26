@@ -12,6 +12,9 @@ export class CommunityReply {
 
     @Prop()
     reply: string;
+
+    @Prop()
+    createdDate: Date;
 }
 
 export const CommunityReplySchema = SchemaFactory.createForClass(CommunityReply);

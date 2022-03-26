@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { cPostCreate, replyCreate, editCPost, editCReply } from './community.dto';
+import { isMongoId } from 'class-validator';
+import { cPostCreate, replyCreate, editCPost, editCReply, FilterType } from './community.dto';
 import { CommunityPost, CommunityPostDocument } from '../schemas/community-post.schema';
 import { CommunityReply, CommunityReplyDocument } from '../schemas/community-reply.schema';
 import { User, UserDocument } from '../schemas/user.schema';
+import { State, StateDocument } from '../schemas/state.schema';
 
 @Injectable()
 export class CommunityService {
@@ -12,6 +14,7 @@ export class CommunityService {
 		@InjectModel(CommunityPost.name) private cPostModel: Model<CommunityPostDocument>,
 		@InjectModel(CommunityReply.name) private cReplyModel: Model<CommunityReplyDocument>,
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
+		@InjectModel(State.name) private stateModel: Model<StateDocument>,
 	) { };
 
 	async createCPost(data: cPostCreate) {
@@ -22,7 +25,8 @@ export class CommunityService {
 			title: data.title,
 			author: `${author.name} ${author.lastName}`,
 			stateId: data.stateId,
-			question: data.question
+			question: data.question,
+			createdDate: new Date()
 		});
 
 		return result;
@@ -32,7 +36,8 @@ export class CommunityService {
 		const result = await this.cReplyModel.create({
 			communityPostId: data.communityPost,
 			authorId: data.author,
-			reply: data.reply
+			reply: data.reply,
+			createdDate: new Date()
 		});
 
 		return result;
@@ -54,7 +59,7 @@ export class CommunityService {
 	}
 
 	async editCReply(data: editCReply) {
-		const result = await this.cReplyModel.findOne({ 
+		const result = await this.cReplyModel.findOne({
 			_id: data.communityReplyId,
 			authorId: data.author
 		});
@@ -64,5 +69,43 @@ export class CommunityService {
 		result.reply = data.reply;
 
 		return (await result.save());
+	}
+
+	async getByState(stateId: string) {
+		if (!isMongoId(stateId)) throw new NotFoundException('State not found.')
+
+		const stateResult = await this.stateModel.findOne({ _id: stateId });
+		if (!stateResult) throw new NotFoundException('State Not Found.');
+
+		const result = await this.cPostModel.find({ stateId });
+
+		return result;
+	}
+
+	async getAll(filterType: FilterType) {
+		const result = await this.cPostModel.find();
+
+		return result.sort((a: any, b: any) =>
+			filterType === 'newest' ?
+				b.createdDate - a.createdDate :
+				a.createdDate - b.createdDate);
+	}
+
+	async getAnswears(cPostId: string) {
+		const result = await this.cReplyModel.find({communityPostId: cPostId});
+		
+		return result;
+	}
+
+	async deleteCommunityPost(id: string) {
+		const result = await this.cPostModel.deleteOne({_id: id});
+		if (!result) throw new NotFoundException('Coummunity post not found');
+		return result;
+	}
+
+	async deleteCommunityPostReply(id: string) {
+		const result = await this.cReplyModel.deleteOne({_id: id});
+		if (!result) throw new NotFoundException('Coummunity post reply not found');
+		return result;
 	}
 }

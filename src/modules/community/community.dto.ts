@@ -78,3 +78,8 @@ export interface editCReply {
 }
 
 export type FilterType = 'newest' | 'oldest';
+
+export class DeleteCommunityPost {
+    @IsMongoId()
+    id: string;
+}

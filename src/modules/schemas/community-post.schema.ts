@@ -12,9 +12,12 @@ export class CommunityPost {
     
     @Prop()
     stateId: string;
-
+    
     @Prop()
     question: string;
+
+    @Prop()
+    createdDate: Date;
 }
 
 export const CommunityPostSchema = SchemaFactory.createForClass(CommunityPost);
