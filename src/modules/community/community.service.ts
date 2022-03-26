@@ -97,13 +97,13 @@ export class CommunityService {
 		return result;
 	}
 
-	async deleteCommunityPost(id: string) {
+	async deleteCommunityPost(id: string, admin: boolean) {
 		const result = await this.cPostModel.deleteOne({_id: id});
 		if (!result) throw new NotFoundException('Coummunity post not found');
 		return result;
 	}
 
-	async deleteCommunityPostReply(id: string) {
+	async deleteCommunityPostReply(id: string, admin: boolean) {
 		const result = await this.cReplyModel.deleteOne({_id: id});
 		if (!result) throw new NotFoundException('Coummunity post reply not found');
 		return result;

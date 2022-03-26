@@ -83,3 +83,7 @@ export class DeleteCommunityPost {
     @IsMongoId()
     id: string;
 }
+export class DeleteCommunityPostReply {
+    @IsMongoId()
+    id: string;
+}

@@ -7,7 +7,8 @@ import {
     EditCPostDto,
     ReplyCPostDto,
     EditCReplyDto,
-    DeleteCommunityPost
+    DeleteCommunityPost,
+    DeleteCommunityPostReply
 } from './community.dto';
 
 @Controller('community')
@@ -109,8 +110,19 @@ export class CommunityController {
 
     @UseGuards(AuthenticatedGuard)
     @Post('delete')
-    async deleteCommunityPost(@Body() body: DeleteCommunityPost) {
-        const result = await this.communityService.deleteCommunityPost(body.id);
+    async deleteCommunityPost(@Body() body: DeleteCommunityPost, @Request() req) {
+        const result = await this.communityService.deleteCommunityPost(body.id, req.user['_doc']['admin']);
+
+        return {
+            message: 'Deleted',
+            data: result
+        }
+    }
+
+    @UseGuards(AuthenticatedGuard)
+    @Post('delete')
+    async deleteCommunityPostReply(@Body() body: DeleteCommunityPostReply, @Request() req) {
+        const result = await this.communityService.deleteCommunityPostReply(body.id, req.user['_doc']['admin']);
 
         return {
             message: 'Deleted',
