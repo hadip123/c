@@ -19,11 +19,6 @@ export class Post {
     text: string;
 
     @Prop({required: true})
-    seens: {
-        ip: string;
-    }[];
-
-    @Prop({required: true})
     authorId: string;
 
     @Prop({required: true})

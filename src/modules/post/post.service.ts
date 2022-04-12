@@ -21,9 +21,7 @@ export default class PostService {
             title: post.title,
             author: post.author,
             description: post.description,
-            seens: [],
             text: post.text,
-            rate: [],
             stateId: post.stateId,
             authorId: post.authorId,
             createdDate: new Date(),
@@ -64,15 +62,15 @@ export default class PostService {
 
         return result;
     }
-
-    async seen(seenPost: SeenPostDto, ip: string) {
-        const result = await this.postModel.findById(seenPost.postId);
-        if (!result) throw new NotFoundException('Post not found');
-        result.seens.push({ ip: ip });
-
-        return await result.save();
-    }
-
+    /*
+        async seen(seenPost: SeenPostDto, ip: string) {
+            const result = await this.postModel.findById(seenPost.postId);
+            if (!result) throw new NotFoundException('Post not found');
+            result.seens.push({ ip: ip });
+    
+            return await result.save();
+        }
+    */
     async getAll() {
         const result = await this.postModel.find();
 
@@ -123,7 +121,6 @@ export default class PostService {
             aRates += rate.rate;
         });
         let aSeens = 0;
-        post['seen'] = post.seens.length;
         post['rate'] = (aRates / rates.length) ? (aRates / rates.length) : 0;
         delete post['__v']
         delete post['rates'];

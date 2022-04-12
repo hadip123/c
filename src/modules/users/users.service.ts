@@ -24,13 +24,16 @@ export class UsersService {
     }
 
     async findOne(username: string) {
+        console.log(`findOne called ${username}`);
         const result = await this.userModel.findOne({ username });
+        console.log(result);
 
         return result;
     }
 
     async updateInfo(id: string, name: string, lastName: string) {
-        const result = await this.userModel.findOne({ _id: id });
+        console.log('updateInfo called');
+        const result = await this.userModel.findOne({ id: id });
         if (!result) throw new NotFoundException('User not found.');
 
         result.name = name;
@@ -39,6 +42,8 @@ export class UsersService {
         return await result.save();
     }
     async findById (id: string) {
+        console.log('findById called');
+        
         const result = await this.userModel.findOne({_id: id});
 
         return result;

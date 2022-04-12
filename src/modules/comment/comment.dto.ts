@@ -15,3 +15,8 @@ export class DeleteCommentDto {
     @IsMongoId()
     id: string;
 }
+
+export class CheckCommentDto {
+    @IsMongoId()
+    id: string;
+}

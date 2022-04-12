@@ -18,6 +18,9 @@ export class CommunityPost {
 
     @Prop()
     createdDate: Date;
+
+    @Prop()
+    checked: boolean;
 }
 
 export const CommunityPostSchema = SchemaFactory.createForClass(CommunityPost);

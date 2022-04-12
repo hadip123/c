@@ -36,7 +36,8 @@ export class UsersController {
     @Post('info/update')
     async updateInfo(@Request() req, @Body() body: UserUpdateDto) {
         const result = await this.userService.updateInfo(req.user['_doc']['_id'], body.name, body.lastName);
-
+        req.user['_doc'].name = result.name;
+        req.user['_doc'].lastName = result.lastName;
         return {
             message: 'User updated.',
             data: result

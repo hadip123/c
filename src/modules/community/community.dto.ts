@@ -2,7 +2,7 @@ import { IsString, Length, IsMongoId } from '@nestjs/class-validator';
 
 export class CreateCPostDto {
     @IsString()
-    @Length(2, 30)
+    @Length(2, 90)
     title: string;
 
     @IsString()
@@ -84,6 +84,11 @@ export class DeleteCommunityPost {
     id: string;
 }
 export class DeleteCommunityPostReply {
+    @IsMongoId()
+    id: string;
+}
+
+export class Check {
     @IsMongoId()
     id: string;
 }

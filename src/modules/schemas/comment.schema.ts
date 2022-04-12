@@ -16,6 +16,9 @@ export class Comment {
 
     @Prop({ required: true })
     createdDate: Date;
+
+    @Prop({ required: true })
+    checked: boolean;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

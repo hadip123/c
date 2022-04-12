@@ -24,7 +24,7 @@ export default class PostController {
             }, req)
         }
     }
-
+/*
     @Get('seen/:postId')
     async seen(@Param('postId') postId: string, @Request() req) {
         return {
@@ -32,7 +32,7 @@ export default class PostController {
             data: await this.postService.seen({ postId }, req.ip)
         }
     }
-
+*/
     @UseGuards(AuthenticatedGuard)
     @Post('update')
     async update(@Body() body: PostUpdateDto,

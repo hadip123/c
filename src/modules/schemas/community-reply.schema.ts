@@ -15,6 +15,9 @@ export class CommunityReply {
 
     @Prop()
     createdDate: Date;
+
+    @Prop()
+    checked: boolean;
 }
 
 export const CommunityReplySchema = SchemaFactory.createForClass(CommunityReply);

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, UseGuards, Request, } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, Request } from '@nestjs/common';
 import { AuthenticatedGuard } from "../auth/authenticated.guard";
 import { CommunityService } from './community.service';
 import {
@@ -8,7 +8,8 @@ import {
     ReplyCPostDto,
     EditCReplyDto,
     DeleteCommunityPost,
-    DeleteCommunityPostReply
+    DeleteCommunityPostReply,
+    Check
 } from './community.dto';
 
 @Controller('community')
@@ -25,6 +26,7 @@ export class CommunityController {
         }
     }
 
+    
     @Get(':filterType')
     async getAll(@Param('filterType') filter: FilterType) {
         const result = await this.communityService.getAll(filter);
@@ -36,8 +38,8 @@ export class CommunityController {
     }
 
     @Get('answers/:cpId')
-    async getAnswearsByCommunityPost(@Param('cpId') communityPostId: string) {
-        const result = await this.communityService.getAnswears(communityPostId);
+    async getAnswersByCommunityPost(@Param('cpId') communityPostId: string) {
+        const result = await this.communityService.getAnswers(communityPostId);
 
         return {
             message: 'There are all answers for this question.',
@@ -49,7 +51,7 @@ export class CommunityController {
     @Post('create')
     async create(@Body() body: CreateCPostDto, @Request() req) {
         const result = await this.communityService.createCPost({
-            authorId: req.user['_doc']['id'],
+            authorId: req.user['_doc']['_id'],
             question: body.question,
             stateId: body.stateId,
             title: body.title
@@ -65,7 +67,7 @@ export class CommunityController {
     @Post('edit')
     async editCPost(@Body() body: EditCPostDto, @Request() req) {
         const result = await this.communityService.editCPost({
-            author: req.user['_doc']['id'],
+            author: req.user['_doc']['_id'],
             communityPostId: body.communityPostId,
             question: body.question,
             stateId: body.stateId,
@@ -120,12 +122,64 @@ export class CommunityController {
     }
 
     @UseGuards(AuthenticatedGuard)
-    @Post('delete')
+    @Post('answer/delete')
     async deleteCommunityPostReply(@Body() body: DeleteCommunityPostReply, @Request() req) {
         const result = await this.communityService.deleteCommunityPostReply(body.id, req.user['_doc']['admin']);
 
         return {
             message: 'Deleted',
+            data: result
+        }
+    }
+
+    @Get('posts/today')
+    async todayPostsCount() {
+        const result = await this.communityService.postsCountToday();
+
+        return {
+            message: 'Posts Count',
+            data: result
+        }
+    }
+
+    @Get('reply/today')
+    async todayAnswersCount() {
+        const result = await this.communityService.answersCountToday();
+
+        return {
+            message: 'answers Count',
+            data: result
+        }
+    }
+
+    @Get('answers/:filterType/get')
+    async getanswers(@Param('filterType') filterType: FilterType) {
+        const result = await this.communityService.getAllAnswers(filterType);
+
+        return {
+            message: 'All answers',
+            data: result
+        }
+    }
+
+    @UseGuards(AuthenticatedGuard)
+    @Post('check')
+    async checkQuestion(@Body() body: Check, @Request() req) {
+        const result = await this.communityService.checkQuestion(body.id, req.user['_doc']['admin']);
+
+        return {
+            message: 'Question Checked',
+            data: result
+        }
+    }
+
+    @UseGuards(AuthenticatedGuard)
+    @Post('answer/check')
+    async checkanswer(@Body() body: Check, @Request() req) {
+        const result = await this.communityService.checkAnswer(body.id, req.user['_doc']['admin']);
+        
+        return {
+            message: 'Question Cheecked',
             data: result
         }
     }
