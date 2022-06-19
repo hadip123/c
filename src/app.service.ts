@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class AppService {
-  async testAuth() {
+  async testAuth  () {
     return 'Hello';
   }
 }

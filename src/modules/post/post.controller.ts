@@ -1,7 +1,11 @@
-import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthenticatedGuard } from "../auth/authenticated.guard";
 import { PostCreateDto, PostDeleteDto, PostCheckDto, PostUpdateDto } from "./post.dto";
 import PostService from "./post.service";
+import { Express } from 'express'
+import { AnyFilesInterceptor, FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { extname } from "path";
 
 @Controller('post')
 export default class PostController {
@@ -24,15 +28,15 @@ export default class PostController {
             }, req)
         }
     }
-/*
-    @Get('seen/:postId')
-    async seen(@Param('postId') postId: string, @Request() req) {
-        return {
-            message: 'Seen added',
-            data: await this.postService.seen({ postId }, req.ip)
+    /*
+        @Get('seen/:postId')
+        async seen(@Param('postId') postId: string, @Request() req) {
+            return {
+                message: 'Seen added',
+                data: await this.postService.seen({ postId }, req.ip)
+            }
         }
-    }
-*/
+    */
     @UseGuards(AuthenticatedGuard)
     @Post('update')
     async update(@Body() body: PostUpdateDto,
@@ -107,4 +111,24 @@ export default class PostController {
             data: result
         }
     }
+
+    // @UseGuards(AuthenticatedGuard)
+    @Post('picture/upload')
+    @UseInterceptors(FileInterceptor('image', {
+        storage: diskStorage({
+            destination: './uploads', 
+            filename: (req, file, cb) => {
+                // Generating a 32 random chars long string
+                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
+                //Calling the callback passing the random name generated with the original extension name
+                cb(null, `${randomName}${extname(file.originalname)}`)
+            }
+        })
+    }))
+    async uploadPicture(@UploadedFile() file: Express.Multer.File) {
+        return {
+            url: 'https://localhost:3000/photos/' + file.filename
+        }
+    }
+
 }

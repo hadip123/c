@@ -32,6 +32,8 @@ async function bootstrap() {
     credentials: true,
   });
 
+  
+
   app.use(passport.initialize());
   app.use(passport.session());
 

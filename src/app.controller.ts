@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Req, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, Request, Res, UseGuards } from '@nestjs/common';
+import { join } from 'path';
+import { Observable, of } from 'rxjs';
 import { AppService } from './app.service';
 import { AuthenticatedGuard } from './modules/auth/authenticated.guard';
 import { LocalAuthGuard } from './modules/auth/local-auth.guard';
@@ -32,5 +34,8 @@ export class AppController {
 		}
 	}
 
-
+	@Get('photos/:fileName')
+	getPicture(@Param('fileName') fileName: string, @Res() res): Observable<Object> {
+		return of(res.sendFile(join(process.cwd(), 'uploads/' + fileName)));
+	}
 }
