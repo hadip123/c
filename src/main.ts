@@ -17,6 +17,7 @@ async function bootstrap() {
   }))
   const whitelist = [
     'http://localhost:8080', // IP: Pahlavan
+    'http://127.0.0.1:5500/'
   ];
   app.enableCors({
     origin: function (origin, callback) {
