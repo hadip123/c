@@ -12,7 +12,7 @@ import { CommunityModule } from './modules/community/community.module';
 import { UtilitiesModule } from './modules/utilities/utilities.module';
 
 @Module({
-  imports: [RateModule,PostModule  ,StateModule, MongooseModule.forRoot('mongodb://root:hadi-p.zhoon123@safarinodb.hipoo.ir:27017/?authMechanism=DEFAULT'), UsersModule, CommentModule, AuthModule, CommunityModule, UtilitiesModule],
+  imports: [RateModule,PostModule ,StateModule, MongooseModule.forRoot('mongodb://root:hadi-p.zhoon123@safarinodb.hipoo.ir:27017/?authMechanism=DEFAULT'), UsersModule, CommentModule, AuthModule, CommunityModule, UtilitiesModule],
   controllers: [AppController],
   providers: [AppService],
 })
